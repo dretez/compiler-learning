@@ -56,13 +56,36 @@ Tree *newTree(char *label, uint label_len) {
 
 void treeAddChild(Tree *root, Tree *child) {
     Tree **aux = root->child;
-    root->child = realloc(root, sizeof(Tree *) * (root->child_count + 1));
+    root->child =
+        realloc(root->child, sizeof(Tree *) * (root->child_count + 1));
     if (root->child == NULL) {
         root->child = aux;
         return;
     }
     root->child[root->child_count] = child;
     root->child_count++;
+}
+
+Tree *newDigitNode(char *c) {
+    Tree *num = newTree(c, 1);
+    Tree *digit = newTree("digit", 5);
+    treeAddChild(digit, num);
+    return digit;
+}
+
+void printTree(Tree *root, uint depth) {
+    for (uint i = 0; i < depth; i++) {
+        printf("    ");
+    }
+    for (uint i = 0; i < root->label_len; i++) {
+        putc(root->label[i], stdout);
+    }
+    putc('\n', stdout);
+    if (root->child_count == 0) {
+    }
+    for (uint i = 0; i < root->child_count; i++) {
+        printTree(root->child[i], depth + 1);
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -76,18 +99,24 @@ int main(int argc, char *argv[]) {
     Tree *tree = NULL;
     while (read(f, &c, sizeof(char))) {
         if (c >= '0' && c <= '9') {
-            Tree *num = newTree(&c, 1);
-            Tree *digit = newTree("digit", 5);
-            treeAddChild(digit, num);
             Tree *list = newTree("list", 4);
-            treeAddChild(list, digit);
-
+            treeAddChild(list, newDigitNode(&c));
+            tree = list;
         } else if (c == '+' || c == '-') {
             Tree *oper = newTree(&c, 1);
             Tree *list = newTree("list", 4);
+            treeAddChild(list, tree);
+            tree = list;
+            if (!read(f, &c, sizeof(char)))
+                exit(EXIT_FAILURE);
+            treeAddChild(list, newDigitNode(&c));
+            treeAddChild(list, oper);
         }
     }
+    printTree(tree, 0);
 
+    printf("\nPress any key to exit");
+    fgetc(stdin);
     exit(EXIT_SUCCESS);
 }
 
