@@ -24,6 +24,7 @@ Tree *newTree(char *label, uint label_len) {
     new->label_len = label_len;
     new->child = NULL;
     new->child_count = 0;
+    new->parent = NULL;
     return new;
 }
 
@@ -36,6 +37,7 @@ void treeAddChild(Tree *root, Tree *child) {
         return;
     }
     root->child[root->child_count] = child;
+    child->parent = root;
     root->child_count++;
 }
 
