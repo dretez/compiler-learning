@@ -18,8 +18,12 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     int f = open(argv[1], O_RDONLY);
-    char c = 0;
+    if (f == -1) {
+        printf("Error opening %s\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
 
+    char c = '\0';
     Tree *tree = NULL;
     while (read(f, &c, sizeof(char))) {
         if (c >= '0' && c <= '9') {
