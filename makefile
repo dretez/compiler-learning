@@ -15,7 +15,7 @@ OBJS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%.o,$(SRCS))
 CC := gcc
 # 0 = no debug info, 2 = default, 3 = max debug info
 DEBUG_LEVEL := 0
-CFLAGS := -Wall -Wextra -g$(DEBUG_LEVEL) -I $(shell pwd)
+CFLAGS := -Wall -Wextra -g$(DEBUG_LEVEL) -iquote $(shell pwd)/$(HEADER_DIR)
 
 all: $(BUILD_DIR)/$(NAME)
 
