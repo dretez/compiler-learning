@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "../header/tree.h"
+#include "tree.h"
 
 /* Grammar:
  *    list -> list + digit
