@@ -6,7 +6,7 @@ String newEmptyString() { return (String){NULL, 0}; }
 String newString(char *str, size_t len) {
     String out = newEmptyString();
     stringCpy(out, (String){str, len});
-    return (String){str, len};
+    return out;
 }
 
 int stringCpy(String to, String from) {
@@ -17,6 +17,7 @@ int stringCpy(String to, String from) {
             to.str = aux;
             return -1;
         }
+        to.len = from.len;
     }
     memcpy(to.str, from.str, from.len);
     return from.len;
