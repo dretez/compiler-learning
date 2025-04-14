@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "Utils/Logs.h"
 #include "tree.h"
 
 /* Grammar:
@@ -14,12 +15,16 @@
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        printf("Expected 1 argument: %s <file>", argv[0]);
+        error("Expected 1 argument: ");
+        logAppend(argv[0]);
+        logAppend(" <file>");
         exit(EXIT_FAILURE);
     }
     int f = open(argv[1], O_RDONLY);
     if (f == -1) {
-        printf("Error opening %s\n", argv[1]);
+        error("Couldn't open \"");
+        logAppend(argv[1]);
+        logAppend("\"");
         exit(EXIT_FAILURE);
     }
 
@@ -43,7 +48,8 @@ int main(int argc, char *argv[]) {
     }
     printTree(tree, 0);
 
-    printf("\nPress any key to exit");
+    printf("\n");
+    info("Press any key to exit");
     fgetc(stdin);
     exit(EXIT_SUCCESS);
 }
