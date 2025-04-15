@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -45,4 +46,10 @@ int resizeStringAlloc(String *str, size_t size) {
     str->len = size < str->len ? size : str->len;
     str->allocSize = size;
     return size;
+}
+
+void printString(String str) {
+    for (size_t i = 0; i < str.len; i++) {
+        putchar(str.str[i]);
+    }
 }

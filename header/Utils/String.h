@@ -19,4 +19,6 @@ int resizeStringAlloc(String *str, size_t size);
 int stringCpy(String *to, String from);
 int stringCmp(String s1, String s2);
 
+void printString(String);
+
 #endif // INCLUDE_UTILS_STRING_H_
