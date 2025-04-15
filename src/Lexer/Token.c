@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <fcntl.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,25 +7,35 @@
 
 #include "Lexer/Token.h"
 #include "Lexer/TokenEndCheckers.h"
+#include "Utils/FileDescriptor.h"
 #include "Utils/String.h"
 
 TokenType getTokenType(char start);
 
 Token nextToken(int fd) {
     char c;
-    for (read(fd, &c, sizeof(char)); isspace((unsigned char)c);
+    read(fd, &c, sizeof(char));
+    for (off_t fdEnd = fdGetEnd(fd);
+         fdGetCur(fd) < fdEnd && isspace((unsigned char)c);
          read(fd, &c, sizeof(char))) {
     }
-    off_t start = lseek(fd, 0, SEEK_CUR);
+
+    if (fdGetCur(fd) >= fdGetEnd(fd))
+        return (Token){newEmptyString(), EOF_TOKEN};
+
+    off_t start = lseek(fd, 0, SEEK_CUR) - 1;
     TokenEndChecker endCheck = setTokenEndChecker(c);
     TokenType type = getTokenType(c);
     while (!endCheck(c))
         read(fd, &c, sizeof(char));
-    off_t end = lseek(fd, 0, SEEK_CUR);
+    off_t end = lseek(fd, 0, SEEK_CUR) - 1;
+
+    lseek(fd, start, SEEK_SET);
     String value = newEmptyString();
     resizeStringAlloc(&value, end - start);
-    lseek(fd, start, SEEK_SET);
     read(fd, value.str, sizeof(char) * (end - start));
+    value.len = end - start;
+
     return (Token){value, type};
 }
 
@@ -57,4 +68,7 @@ int tlistAddToken(TokenList *tl, Token t) {
         tl->list = aux;
         return -1;
     }
+    tl->list[tl->count] = t;
+    tl->count++;
+    return tl->count;
 }

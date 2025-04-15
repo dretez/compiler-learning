@@ -12,10 +12,11 @@ typedef enum {
     MINUS,
     TIMES,
     DIVISION,
+    EOF_TOKEN,
 } TokenType;
 
 typedef struct {
-    String a;
+    String str;
     TokenType type;
 } Token;
 
