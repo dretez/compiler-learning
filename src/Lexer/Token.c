@@ -1,5 +1,7 @@
 #include <ctype.h>
+#include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "Lexer/Token.h"
@@ -44,4 +46,15 @@ TokenType getTokenType(char start) {
         }
     } else
         return INVALID;
+}
+
+TokenList newTokenList() { return (TokenList){NULL, 0}; }
+
+int tlistAddToken(TokenList *tl, Token t) {
+    Token *aux = tl->list;
+    tl->list = realloc(tl->list, sizeof(Token) * (tl->count + 1));
+    if (tl->list == NULL) {
+        tl->list = aux;
+        return -1;
+    }
 }
