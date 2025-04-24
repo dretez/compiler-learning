@@ -36,9 +36,10 @@ void treeListMoveTreeToEnd(TreeList *tl, Tree *tree) {
         i++;
     if (i == tl->count)
         return;
-    Tree *aux = tl->list[i - 1];
-    tl->list[i] = tl->list[tl->count - 1];
-    tl->list[tl->count - 1] = aux;
+    Tree *aux = tl->list[i];
+    for (; i < tl->count - 1; i++)
+        tl->list[i] = tl->list[i + 1];
+    tl->list[i] = aux;
 }
 void treeListRemoveLast(TreeList *tl) {
     if (tl->count == 0)
