@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "Utils/Tree.h"
+#include "Utils/TreeList.h"
 
 TreeList newTreeList() {
     return (TreeList){
@@ -30,6 +31,10 @@ int treeListAddTree(TreeList *tl, Tree value) {
     return tl->count;
 }
 
+void treeListRemoveTree(TreeList *tl, Tree *tree) {
+    treeListMoveTreeToEnd(tl, tree);
+    treeListRemoveLast(tl);
+}
 void treeListMoveTreeToEnd(TreeList *tl, Tree *tree) {
     uint i = 0;
     while (tl->list[i] != tree && i < tl->count)
