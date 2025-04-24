@@ -26,7 +26,7 @@ Tree *mallocTree(Tree orig) {
 }
 
 void freeTree(Tree *root) {
-    for (int i = 0; i < root->children.count; i++) {
+    for (uint i = 0; i < root->children.count; i++) {
         root->children.list[i]->parent = NULL;
         freeTree(root->children.list[i]);
     }
@@ -36,7 +36,7 @@ void freeTree(Tree *root) {
     freeTreeNode(root);
 }
 TreeList freeTreeNode(Tree *node) {
-    for (int i = 0; i < node->children.count; i++) {
+    for (uint i = 0; i < node->children.count; i++) {
         node->children.list[i]->parent = NULL;
     }
     TreeList childrenCopy = node->children;

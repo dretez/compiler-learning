@@ -31,7 +31,7 @@ int treeListAddTree(TreeList *tl, Tree value) {
 }
 
 void treeListMoveTreeToEnd(TreeList *tl, Tree *tree) {
-    int i = 0;
+    uint i = 0;
     while (tl->list[i] != tree && i < tl->count)
         i++;
     if (i == tl->count)
