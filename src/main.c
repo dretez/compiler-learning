@@ -6,7 +6,6 @@
 
 #include "Lexer/Token.h"
 #include "Utils/Logs.h"
-#include "Utils/String.h"
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -30,11 +29,7 @@ int main(int argc, char *argv[]) {
          token = nextToken(f)) {
         tlistAddToken(&lex, token);
     }
-    for (uint i = 0; i < lex.count; i++) {
-        // For temporary visualization only
-        printString(lex.list[i].str);
-        printf("\n");
-    }
+    printTokenList(lex);
 
     printf("============================\n");
     info("Press any key to exit");

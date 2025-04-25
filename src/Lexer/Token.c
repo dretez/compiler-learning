@@ -72,3 +72,15 @@ int tlistAddToken(TokenList *tl, Token t) {
     tl->count++;
     return tl->count;
 }
+
+void fprintTokenList(FILE *stream, TokenList lex) {
+    fprintf(stream, "Token list length: %d\n", lex.count);
+    for (uint i = 0; i < lex.count; i++) {
+        fprintf(stream, "Token %d:\n\ttype: %d\n\tString:\n\t\t%p: ", i,
+                lex.list[i].type, lex.list[i].str.str);
+        printString(lex.list[i].str);
+        fprintf(stream, "\n\t\tlen: %zu\n\t\talloced: %zu\n",
+                lex.list[i].str.len, lex.list[i].str.allocSize);
+    }
+}
+void printTokenList(TokenList lex) { fprintTokenList(stdout, lex); }

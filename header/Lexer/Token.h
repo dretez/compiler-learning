@@ -5,6 +5,8 @@
 
 #include "Utils/String.h"
 
+typedef struct _IO_FILE FILE;
+
 typedef enum {
     INVALID,
     DIGIT,
@@ -28,5 +30,10 @@ typedef struct {
 Token nextToken(int fd);
 TokenList newTokenList();
 int tlistAddToken(TokenList *, Token);
+
+/* Visualization */
+
+void printTokenList(TokenList);
+void fprintTokenList(FILE *stream, TokenList);
 
 #endif /* ifndef INCLUDE_LEXER_TOKEN_H */
