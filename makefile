@@ -29,7 +29,10 @@ $(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c
 	@echo Compiling $@
 	@$(CC) $(CFLAGS) -c $< -o $@
 
+wc:
+	@wc $(SRCS) $(shell find $(HEADER_DIR) -name '*.$(HEADER_EXT)') | tail -1
+
 clean:
 	rm -rf $(OBJ_DIR) $(BUILD_DIR)
 
-.PHONY: all clean
+.PHONY: all clean wc
