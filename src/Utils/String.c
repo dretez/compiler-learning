@@ -5,22 +5,60 @@
 
 #include "Utils/String.h"
 
-String newEmptyString() { return (String){NULL, 0, 0}; }
-String newString(char *str, size_t len) {
-    String out = newEmptyString();
-    stringCpy(&out, (String){str, len, len});
+/******************************** CONSTRUCTION ********************************/
+
+String String_init() { 
+    return (String){
+        .str = NULL,
+        .len = 0,
+        .allocSize = 0,
+    }; 
+}
+
+String *String_new() {
+    String *str = malloc(sizeof(String));
+    if (str == NULL)
+        return NULL;
+    *str = String_init();
+    return str;
+}
+
+String String_fromCString(char *str, size_t len) {
+    String out = String_init();
+    String_cpy(&out, (String){
+        .str = str, 
+        .len = len,
+        .allocSize = len,
+    });
     return out;
 }
 
-int stringCpy(String *to, String from) {
-    if (to->allocSize < from.len && resizeStringAlloc(to, from.len) == -1)
+/********************************** CLEAN UP **********************************/
+
+void String_free(String **str) {
+    if (*str == NULL)
+        return;
+    String_clear(*str);
+    free(*str);
+    *str = NULL;
+}
+
+void String_clear(String *str) {
+    free(str->str);
+    *str = String_init();
+}
+
+/***************************** STRING OPERATIONS *****************************/
+
+int String_cpy(String *to, String from) {
+    if (to->allocSize < from.len && String_resize(to, from.len) == -1)
         return -1;
     memcpy(to->str, from.str, from.len);
     to->len = from.len;
     return from.len;
 }
 
-int stringCmp(String s1, String s2) {
+int String_cmp(String s1, String s2) {
     int out = memcmp(s1.str, s2.str,
                      sizeof(char) * (s1.len > s2.len ? s2.len : s1.len));
     if (out == 0 && s1.len != s2.len) {
@@ -29,14 +67,7 @@ int stringCmp(String s1, String s2) {
     return out;
 }
 
-void freeString(String *str) {
-    free(str->str);
-    str->str = NULL;
-    str->len = 0;
-    str->allocSize = 0;
-}
-
-int resizeStringAlloc(String *str, size_t size) {
+int String_resize(String *str, size_t size) {
     char *aux = str->str;
     str->str = realloc(str->str, sizeof(char) * size);
     if (str->str == NULL) {
@@ -48,7 +79,7 @@ int resizeStringAlloc(String *str, size_t size) {
     return size;
 }
 
-void printString(String str) {
+void String_print(String str) {
     for (size_t i = 0; i < str.len; i++) {
         putchar(str.str[i]);
     }

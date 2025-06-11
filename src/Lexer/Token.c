@@ -21,7 +21,7 @@ Token nextToken(int fd) {
     }
 
     if (fdGetCur(fd) >= fdGetEnd(fd))
-        return (Token){newEmptyString(), EOF_TOKEN};
+        return (Token){String_init(), EOF_TOKEN};
 
     off_t start = lseek(fd, 0, SEEK_CUR) - 1;
     TokenEndChecker endCheck = setTokenEndChecker(c);
@@ -31,8 +31,8 @@ Token nextToken(int fd) {
     off_t end = lseek(fd, 0, SEEK_CUR) - 1;
 
     lseek(fd, start, SEEK_SET);
-    String value = newEmptyString();
-    resizeStringAlloc(&value, end - start);
+    String value = String_init();
+    String_resize(&value, end - start);
     read(fd, value.str, sizeof(char) * (end - start));
     value.len = end - start;
 
@@ -78,7 +78,7 @@ void fprintTokenList(FILE *stream, TokenList lex) {
     for (uint i = 0; i < lex.count; i++) {
         fprintf(stream, "Token %d:\n\ttype: %d\n\tString:\n\t\t%p: ", i,
                 lex.list[i].type, lex.list[i].str.str);
-        printString(lex.list[i].str);
+        String_print(lex.list[i].str);
         fprintf(stream, "\n\t\tlen: %zu\n\t\talloced: %zu\n",
                 lex.list[i].str.len, lex.list[i].str.allocSize);
     }
