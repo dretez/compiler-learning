@@ -12,7 +12,38 @@
 
 TokenType getTokenType(char start);
 
-Token nextToken(int fd) {
+Token Token_init() {
+    return (Token){
+        .precedence = Token_getPrecedence(NULL_TOKEN),
+        .type = NULL_TOKEN,
+        .str = String_init(),
+    }; 
+}
+
+Token *Token_new() {
+    Token *token = malloc(sizeof(Token));
+    if (token == NULL)
+        return NULL;
+    *token = Token_init();
+    return token;
+}
+
+void Token_clear(Token *token) {
+    if (token == NULL)
+        return;
+    String_clear(&token->str);
+    *token = Token_init();
+}
+
+void Token_free(Token **token) {
+    if (*token == NULL)
+        return;
+    String_clear(&(*token)->str);
+    free(*token);
+    *token = NULL;
+}
+
+Token TokenReader_nextFromFile(int fd) {
     char c;
     read(fd, &c, sizeof(char));
     for (off_t fdEnd = fdGetEnd(fd);
@@ -21,7 +52,11 @@ Token nextToken(int fd) {
     }
 
     if (fdGetCur(fd) >= fdGetEnd(fd))
-        return (Token){String_init(), EOF_TOKEN};
+        return (Token){
+            .precedence = Token_getPrecedence(EOF_TOKEN),
+            .type = EOF_TOKEN,
+            .str = String_init(),
+        };
 
     off_t start = lseek(fd, 0, SEEK_CUR) - 1;
     TokenEndChecker endCheck = setTokenEndChecker(c);
@@ -36,7 +71,49 @@ Token nextToken(int fd) {
     read(fd, value.str, sizeof(char) * (end - start));
     value.len = end - start;
 
-    return (Token){value, type};
+    return (Token){
+        .precedence = Token_getPrecedence(type),
+        .type = type,
+        .str = value, 
+    };
+}
+
+TokenPrecendence Token_getPrecedence(TokenType type) {
+    switch (type) {
+    case PLUS:
+    case MINUS:
+        return ADD_SUB;
+    case TIMES:
+    case DIVISION:
+        return MUL_DIV;
+    case INVALID:
+    case DIGIT:
+    case EOF_TOKEN:
+    case NULL_TOKEN:
+        return NONE;
+    default:
+        return -1;
+    }
+}
+
+void Token_fprint(FILE *stream, Token token) {
+    fprintf(stream, "Type: %d, Precedence: %d, String: \"",
+            token.type, token.precedence);
+    String_print(token.str);
+    fprintf(stream, "\"");
+}
+
+void Token_fprintln(FILE *stream, Token token) {
+    Token_fprint(stream, token);
+    fprintf(stream, "\n");
+}
+
+void Token_print(Token token) {
+    Token_fprint(stdout, token);
+}
+
+void Token_println(Token token) {
+    Token_fprintln(stdout, token);
 }
 
 TokenType getTokenType(char start) {
@@ -59,28 +136,3 @@ TokenType getTokenType(char start) {
         return INVALID;
 }
 
-TokenList newTokenList() { return (TokenList){NULL, 0}; }
-
-int tlistAddToken(TokenList *tl, Token t) {
-    Token *aux = tl->list;
-    tl->list = realloc(tl->list, sizeof(Token) * (tl->count + 1));
-    if (tl->list == NULL) {
-        tl->list = aux;
-        return -1;
-    }
-    tl->list[tl->count] = t;
-    tl->count++;
-    return tl->count;
-}
-
-void fprintTokenList(FILE *stream, TokenList lex) {
-    fprintf(stream, "Token list length: %d\n", lex.count);
-    for (uint i = 0; i < lex.count; i++) {
-        fprintf(stream, "Token %d:\n\ttype: %d\n\tString:\n\t\t%p: ", i,
-                lex.list[i].type, lex.list[i].str.str);
-        String_print(lex.list[i].str);
-        fprintf(stream, "\n\t\tlen: %zu\n\t\talloced: %zu\n",
-                lex.list[i].str.len, lex.list[i].str.allocSize);
-    }
-}
-void printTokenList(TokenList lex) { fprintTokenList(stdout, lex); }
