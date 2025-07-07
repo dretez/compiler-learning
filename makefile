@@ -10,12 +10,9 @@ HEADER_EXT := h
 
 SRCS := $(shell find $(SRC_DIR) -name '*.$(SRC_EXT)')
 OBJS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%.o,$(SRCS))
-# OBJS := $(SRCS:$(SRC_DIR)/%$(SRC_EXT)=$(OBJ_DIR)/%.o)
 
 CC := gcc
-# 0 = no debug info, 2 = default, 3 = max debug info
-DEBUG_LEVEL := 0
-CFLAGS := -Wall -Wextra -g$(DEBUG_LEVEL) -iquote $(shell pwd)/$(HEADER_DIR)
+CFLAGS := -Wall -Wextra -iquote $(shell pwd)/$(HEADER_DIR)
 
 all: $(BUILD_DIR)/$(NAME)
 
@@ -35,4 +32,7 @@ wc:
 clean:
 	rm -rf $(OBJ_DIR) $(BUILD_DIR)
 
-.PHONY: all clean wc
+debug: CFLAGS += -g3
+debug: $(BUILD_DIR)/$(NAME)
+
+.PHONY: all debug clean wc
