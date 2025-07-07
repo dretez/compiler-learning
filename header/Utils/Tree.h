@@ -1,25 +1,38 @@
 #ifndef INCLUDE_UTILS_TREE_H
 #define INCLUDE_UTILS_TREE_H
 
+#include <stdio.h>
 #include <sys/types.h>
 
-#include "Utils/String.h"
 #include "Utils/TreeList.h"
 
 typedef struct tree Tree;
 
 struct tree {
-    String label;
+    void *data;
     Tree *parent;
     TreeList children;
 };
 
-Tree newTree();
+Tree Tree_init();
+Tree *Tree_new();
+void Tree_clear(Tree *);
+void Tree_free(Tree *root);
+TreeList Tree_freeNode(Tree *node);
 
-int treeAddNewChild(Tree *root, Tree child);
+uint Tree_childCount(Tree);
+Tree *Tree_getChild(Tree, uint idx);
+TreeList *Tree_getChildren(Tree *);
+Tree *Tree_getParent(Tree);
+void *Tree_getData(Tree);
 
-Tree *mallocTree(Tree orig);
-void freeTree(Tree *root);
-TreeList freeTreeNode(Tree *node);
+void Tree_addChild(Tree *node, Tree *child);
+void Tree_removeChild(Tree *node, Tree *child);
+
+void Tree_print(Tree tree, void (*valuePrinter)(void *));
+void Tree_fprint(FILE *stream, void (*valuePrinter)(void *), Tree tree,
+                 uint depth);
+void Tree_printNode(Tree tree, void (*valuePrinter)(void *));
+void Tree_fprintNode(FILE *stream, void (*valuePrinter)(void *), Tree tree);
 
 #endif // ! INCLUDE_UTILS_TREE_H
