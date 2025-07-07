@@ -3,4 +3,4 @@
 clear
 make
 cat tests/test.txt
-./build/main tests/test.txt
+./build/compiler tests/test.txt
