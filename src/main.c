@@ -5,7 +5,9 @@
 #include <unistd.h>
 
 #include "Lexer/Token.h"
+#include "Lexer/TokenList.h"
 #include "Utils/Logs.h"
+#include "Parser/Parsing.h"
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -24,12 +26,16 @@ int main(int argc, char *argv[]) {
 
     /**************************** LEXICAL ANALYSIS ****************************/
 
-    TokenList lex = newTokenList();
-    for (Token token = nextToken(f); token.type != EOF_TOKEN;
-         token = nextToken(f)) {
-        tlistAddToken(&lex, token);
+    TokenList lex = TokenList_init();
+    for (Token token = TokenReader_nextFromFile(f); token.type != EOF_TOKEN;
+         token = TokenReader_nextFromFile(f)) {
+        TokenList_add(&lex, token);
     }
-    printTokenList(lex);
+    // TokenList_print(lex);
+
+    /******************************** PARSING ********************************/
+
+    parse(lex);
 
     printf("============================\n");
     info("Press any key to exit");
