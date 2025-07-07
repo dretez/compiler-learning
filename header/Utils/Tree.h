@@ -16,7 +16,23 @@ struct tree {
 
 Tree Tree_init();
 Tree *Tree_new();
-void Tree_clear(Tree *);
+/**
+ * Resets a Tree node
+ *
+ * @param node Tree node to be reset
+ *
+ * @warning Potential memory leak. Children of specified node are left
+ * parentless, and pointers to those children are lost.
+ * If the intent is to
+ * delete a full Tree starting at the specified node, then {@code
+ * Tree_free(node)} should be used instead. If {@code node} is not allocated,
+ * then {@code TreeList_freeItems(Tree_getChildren(node))} should be used
+ * instead.
+ * If the intent is to only reset the given {@code node} but keep its children
+ * in memory, then the {@code TreeList} containing the children should be copied
+ * before running this function.
+ * */
+void Tree_clear(Tree *node);
 void Tree_free(Tree *root);
 TreeList Tree_freeNode(Tree *node);
 
@@ -30,7 +46,9 @@ void Tree_addChild(Tree *node, Tree *child);
 void Tree_removeChild(Tree *node, Tree *child);
 
 void Tree_print(Tree tree, void (*valuePrinter)(void *));
-void Tree_fprint(FILE *stream, void (*valuePrinter)(void *), Tree tree,
+void Tree_fprint(FILE *stream,
+                 void (*valuePrinter)(void *),
+                 Tree tree,
                  uint depth);
 void Tree_printNode(Tree tree, void (*valuePrinter)(void *));
 void Tree_fprintNode(FILE *stream, void (*valuePrinter)(void *), Tree tree);
