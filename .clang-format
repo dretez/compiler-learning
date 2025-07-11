@@ -1,3 +1,4 @@
 IndentWidth: 4
 AlignAfterOpenBracket: Align
 BinPackParameters: false
+AllowShortFunctionsOnASingleLine: None
