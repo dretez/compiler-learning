@@ -111,7 +111,8 @@ void Tree_setFreeItemFunc(Tree *tree, void (*func)(void **)) {
 
 void Tree_setParent(Tree *tree, Tree *parent) {
     NULL_PTR_GUARD(tree);
-    tree->parent = parent;
+    Tree_removeChild(Tree_getParent(tree), tree);
+    Tree_addChild(parent, tree);
 }
 
 void Tree_setData(Tree *tree, void *data) {

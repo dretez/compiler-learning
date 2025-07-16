@@ -64,11 +64,6 @@ void AST_fprintln(FILE *stream, AST *tree, uint depth) {
     fprintf(stream, "\n");
 }
 
-void Tree_setParent(AST *node, AST *parent) {
-    Tree_removeChild(Tree_getParent(node), node);
-    Tree_addChild(parent, node);
-}
-
 uint AST_getMaxChildren(AST *ast) {
     switch (AST_data(ast)->type) {
     case PLUS:
