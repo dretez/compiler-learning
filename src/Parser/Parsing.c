@@ -10,7 +10,7 @@
 
 void parse(List *lex) {
     AST *parse = Tree_new();
-    Token empty = Token_init();
+    Token *empty = Token_new();
 
     if (parse == NULL) {
         return;
@@ -21,7 +21,7 @@ void parse(List *lex) {
     for (uint i = 1; i < List_getSize(lex); i++) {
         Token *next;
         if (i == List_getSize(lex) - 1)
-            next = &empty;
+            next = empty;
         else
             next = List_get(lex, i + 1);
         Token *token = List_get(lex, i);
