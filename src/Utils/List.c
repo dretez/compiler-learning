@@ -70,20 +70,20 @@ void List_setFreeItemFunc(List *list, void (*func)(void **)) {
     list->freeItemFcn = func;
 }
 
-void *List_get(List list, size_t idx) {
-    LIST_IDX_OVERFLOW_GUARD(list, idx) NULL;
-    return idx >= list.count ? NULL : list.data[idx];
+void *List_get(List *list, size_t idx) {
+    LIST_IDX_OVERFLOW_GUARD((*list), idx) NULL;
+    return idx >= list->count ? NULL : list->data[idx];
 }
 
-size_t List_getIdxOf(List list, void *item) {
+size_t List_getIdxOf(List *list, void *item) {
     size_t i = 0;
-    while (i < list.count && list.data[i] != item)
+    while (i < list->count && list->data[i] != item)
         i++;
     return i;
 }
 
-size_t List_getSize(List list) {
-    return list.count;
+size_t List_getSize(List *list) {
+    return list->count;
 }
 
 /*****************************************************************************/
@@ -91,7 +91,7 @@ size_t List_getSize(List list) {
 void List_add(List *list, void *item) {
     NULL_PTR_GUARD(list);
     NULL_PTR_GUARD(item);
-    if (List_checkDuplicate(*list, item))
+    if (List_contains(list, item))
         return;
 
     if (list->count >= list->alloced) {
@@ -110,7 +110,7 @@ void List_add(List *list, void *item) {
 void List_rmItem(List *list, void *item) {
     NULL_PTR_GUARD(list);
     NULL_PTR_GUARD(item);
-    size_t idx = List_getIdxOf(*list, item);
+    size_t idx = List_getIdxOf(list, item);
     LIST_IDX_OVERFLOW_GUARD((*list), idx);
 
     List_rmIdx(list, idx);
@@ -139,8 +139,8 @@ void List_rmIdx(List *list, size_t idx) {
 
 /*****************************************************************************/
 
-int List_checkDuplicate(List list, void *item) {
-    return List_getIdxOf(list, item) != list.count;
+int List_contains(List *list, void *item) {
+    return List_getIdxOf(list, item) != list->count;
 }
 
 void List_runFunction(List *list, void (*func)(void **)) {
