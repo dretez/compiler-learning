@@ -114,6 +114,11 @@ void Tree_setParent(Tree *tree, Tree *parent) {
     tree->parent = parent;
 }
 
+void Tree_setData(Tree *tree, void *data) {
+    NULL_PTR_GUARD(tree);
+    tree->data = data;
+}
+
 void Tree_addChild(Tree *root, Tree *child) {
     NULL_PTR_GUARD(root);
     NULL_PTR_GUARD(child);

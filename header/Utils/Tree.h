@@ -35,9 +35,10 @@ Tree *Tree_getChild(Tree *, uint idx);
 List *Tree_getChildren(Tree *);
 Tree *Tree_getParent(Tree *);
 void *Tree_getData(Tree *);
-void Tree_setParent(Tree *, Tree *parent);
 
 void Tree_setFreeItemFunc(Tree *tree, void (*func)(void **));
+void Tree_setParent(Tree *, Tree *parent);
+void Tree_setData(Tree *, void *data);
 void Tree_addChild(Tree *node, Tree *child);
 void Tree_removeChild(Tree *node, Tree *child);
 
