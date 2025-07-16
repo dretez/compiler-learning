@@ -1,3 +1,3 @@
-#include "Lexer/Token.h"
+#include "Utils/List.h"
 
-void parse(TokenList lex);
+void parse(List *lex);

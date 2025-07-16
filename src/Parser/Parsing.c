@@ -2,28 +2,31 @@
 #include <stdlib.h>
 
 #include "Lexer/Token.h"
-#include "Lexer/TokenList.h"
 #include "Parser/AST.h"
+#include "Utils/List.h"
 #include "Utils/Logs.h"
 #include "Utils/String.h"
+#include "Utils/Tree.h"
 
-void parse(TokenList lex) {
-    AST *parse = AST_new();
+void parse(List *lex) {
+    AST *parse = Tree_new();
     Token empty = Token_init();
 
     if (parse == NULL) {
         return;
     }
 
-    parse->token = TokenList_get(&lex, 0);
+    Tree_setData(parse, List_get(lex, 0));
 
-    for (uint i = 1; i < lex.count; i++) {
-        // Could consider switching to a doubly linked list
-        Token *next = i == lex.count - 1 ? &empty : &lex.list[i + 1];
-        //Token *prev = i == 0 ? &empty : &lex.list[i - 1];
-        Token *token = &lex.list[i];
+    for (uint i = 1; i < List_getSize(lex); i++) {
+        Token *next;
+        if (i == List_getSize(lex) - 1)
+            next = &empty;
+        else
+            next = List_get(lex, i + 1);
+        Token *token = List_get(lex, i);
 
-        //if (token->type == next->type) {
+        // if (token->type == next->type) {
         if (0) {
             error("Unexpected tokens found:");
             printf("\tToken %d: ", i);
@@ -34,8 +37,8 @@ void parse(TokenList lex) {
             exit(EXIT_FAILURE);
         }
 
-        parse = AST_addToken(parse, TokenList_get(&lex, i));
+        parse = AST_addToken(parse, List_get(lex, i));
     }
 
-    AST_println(*parse);
+    AST_println(parse);
 }
