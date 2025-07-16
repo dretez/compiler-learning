@@ -17,7 +17,7 @@ Token Token_init() {
         .precedence = Token_getPrecedence(NULL_TOKEN),
         .type = NULL_TOKEN,
         .str = String_init(),
-    }; 
+    };
 }
 
 Token *Token_new() {
@@ -74,7 +74,7 @@ Token TokenReader_nextFromFile(int fd) {
     return (Token){
         .precedence = Token_getPrecedence(type),
         .type = type,
-        .str = value, 
+        .str = value,
     };
 }
 
@@ -97,8 +97,8 @@ TokenPrecendence Token_getPrecedence(TokenType type) {
 }
 
 void Token_fprint(FILE *stream, Token token) {
-    fprintf(stream, "Type: %d, Precedence: %d, String: \"",
-            token.type, token.precedence);
+    fprintf(stream, "Type: %d, Precedence: %d, String: \"", token.type,
+            token.precedence);
     String_print(token.str);
     fprintf(stream, "\"");
 }
@@ -136,3 +136,14 @@ TokenType getTokenType(char start) {
         return INVALID;
 }
 
+void TokenList_print(List *list) {
+    TokenList_fprint(stdout, list);
+}
+
+void TokenList_fprint(FILE *stream, List *list) {
+    fprintf(stream, "Token list length: %zu\n", List_getSize(list));
+    for (uint i = 0; i < List_getSize(list); i++) {
+        fprintf(stream, "Token %d:\n", i);
+        Token_fprint(stream, *(Token *)List_get(list, i));
+    }
+}

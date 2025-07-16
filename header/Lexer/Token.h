@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 
+#include "Utils/List.h"
 #include "Utils/String.h"
 
 typedef struct _IO_FILE FILE;
@@ -46,5 +47,8 @@ void Token_print(Token token);
 void Token_fprint(FILE *stream, Token token);
 void Token_println(Token token);
 void Token_fprintln(FILE *stream, Token token);
+
+void TokenList_print(List *list);
+void TokenList_fprint(FILE *stream, List *list);
 
 #endif /* ifndef INCLUDE_LEXER_TOKEN_H */
