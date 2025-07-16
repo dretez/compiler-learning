@@ -4,23 +4,17 @@
 #include <stdio.h>
 #include <sys/types.h>
 
-#include "Utils/TreeList.h"
+#include "Utils/List.h"
 
 typedef struct tree Tree;
 
-struct tree {
-    void *data;
-    Tree *parent;
-    TreeList children;
-};
-
-Tree Tree_init();
 Tree *Tree_new();
 /**
  * Resets a Tree node
  *
  * @param node Tree node to be reset
  *
+ * TODO: Rewrite based on changes
  * @warning Potential memory leak. Children of specified node are left
  * parentless, and pointers to those children are lost.
  * If the intent is to
@@ -33,24 +27,26 @@ Tree *Tree_new();
  * before running this function.
  * */
 void Tree_clear(Tree *node);
-void Tree_free(Tree *root);
-TreeList Tree_freeNode(Tree *node);
+void Tree_free(Tree **root);
+List *Tree_freeNode(Tree **node);
 
-uint Tree_childCount(Tree);
-Tree *Tree_getChild(Tree, uint idx);
-TreeList *Tree_getChildren(Tree *);
-Tree *Tree_getParent(Tree);
-void *Tree_getData(Tree);
+uint Tree_childCount(Tree *);
+Tree *Tree_getChild(Tree *, uint idx);
+List *Tree_getChildren(Tree *);
+Tree *Tree_getParent(Tree *);
+void *Tree_getData(Tree *);
+void Tree_setParent(Tree *, Tree *parent);
 
+void Tree_setFreeItemFunc(Tree *tree, void (*func)(void **));
 void Tree_addChild(Tree *node, Tree *child);
 void Tree_removeChild(Tree *node, Tree *child);
 
-void Tree_print(Tree tree, void (*valuePrinter)(void *));
+void Tree_print(Tree *tree, void (*valuePrinter)(void *));
 void Tree_fprint(FILE *stream,
                  void (*valuePrinter)(void *),
-                 Tree tree,
+                 Tree *tree,
                  uint depth);
-void Tree_printNode(Tree tree, void (*valuePrinter)(void *));
-void Tree_fprintNode(FILE *stream, void (*valuePrinter)(void *), Tree tree);
+void Tree_printNode(Tree *tree, void (*valuePrinter)(void *));
+void Tree_fprintNode(FILE *stream, void (*valuePrinter)(void *), Tree *tree);
 
 #endif // ! INCLUDE_UTILS_TREE_H

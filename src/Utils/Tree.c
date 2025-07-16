@@ -1,106 +1,177 @@
+#include "Utils/Tree.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include "Utils/Tree.h"
-#include "Utils/TreeList.h"
+#include "Utils/List.h"
 
-Tree Tree_init() {
-    return (Tree){
-        .data = NULL,
-        .parent = NULL,
-        .children = TreeList_init(),
-    };
+#define NULL_PTR_GUARD(ptr)                                                    \
+    if (ptr == NULL)                                                           \
+    return
+
+typedef struct tree {
+    void *data;
+    Tree *parent;
+    List *children;
+
+    void (*freeDataFunc)(void **);
+} Tree;
+
+void Tree_defaultFreeDataFunc(void **);
+void Tree_AUX_freeChild(Tree **child);
+
+void Tree_reset(Tree *tree) {
+    NULL_PTR_GUARD(tree);
+    tree->data = NULL;
+    tree->parent = NULL;
 }
 
 /***************************** MEMORY MANAGEMENT *****************************/
 
 Tree *Tree_new() {
+    List *list = List_new();
+    NULL_PTR_GUARD(list) NULL;
+    List_setFreeItemFunc(list, (void (*)(void **))Tree_free);
+
     Tree *tree = malloc(sizeof(Tree));
-    if (tree == NULL)
-        return NULL;
-    *tree = Tree_init();
+    NULL_PTR_GUARD(tree) NULL;
+    Tree_reset(tree);
+    tree->children = list;
+    tree->freeDataFunc = Tree_defaultFreeDataFunc;
     return tree;
 }
 
 void Tree_clear(Tree *tree) {
-    if (tree == NULL)
-        return;
-    TreeList_clear(&tree->children);
+    NULL_PTR_GUARD(tree);
+    List_clear(tree->children);
     Tree_removeChild(tree->parent, tree);
-    *tree = Tree_init();
+    Tree_reset(tree);
 }
 
-void Tree_free(Tree *root) {
-    for (uint i = 0; i < root->children.count; i++) {
-        root->children.list[i]->parent = NULL;
-        Tree_free(root->children.list[i]);
-    }
-    if (root->parent != NULL) {
-        TreeList_mvTreeToEnd(&root->parent->children, root);
-    }
+void Tree_free(Tree **root) {
+    NULL_PTR_GUARD(root);
+    NULL_PTR_GUARD(*root);
+    List_runFunction((*root)->children, (void (*)(void **))Tree_AUX_freeChild);
+    if ((*root)->parent != NULL)
+        Tree_removeChild((*root)->parent, *root);
     Tree_freeNode(root);
 }
 
-TreeList Tree_freeNode(Tree *node) {
-    Tree *gramps = node->parent;
-    for (uint i = 0; i < node->children.count; i++) {
-        node->children.list[i]->parent = gramps;
+List *Tree_freeNode(Tree **node) {
+    NULL_PTR_GUARD(node) NULL;
+    Tree *gramps = (*node)->parent;
+    for (size_t i = 0; i < List_getSize((*node)->children); i++) {
+        Tree *aux = List_get((*node)->children, i);
+        Tree_setParent(aux, gramps);
     }
-    TreeList childrenCopy = node->children;
-    free(node);
+    List *childrenCopy = (*node)->children;
+    (*node)->freeDataFunc(&(*node)->data);
+    free(*node);
+    *node = NULL;
     return childrenCopy;
 }
 
 /********************************** GETTERS **********************************/
 
-uint Tree_childCount(Tree tree) { return tree.children.count; }
-
-Tree *Tree_getChild(Tree tree, uint idx) {
-    if (tree.children.count < idx)
-        return NULL;
-    return tree.children.list[idx];
+uint Tree_childCount(Tree *tree) {
+    NULL_PTR_GUARD(tree) 0;
+    return List_getSize(tree->children);
 }
 
-TreeList *Tree_getChildren(Tree *tree) { return &tree->children; }
+Tree *Tree_getChild(Tree *tree, uint idx) {
+    NULL_PTR_GUARD(tree) NULL;
+    if (List_getSize(tree->children) <= idx)
+        return NULL;
+    return List_get(tree->children, idx);
+}
 
-Tree *Tree_getParent(Tree tree) { return tree.parent; }
+List *Tree_getChildren(Tree *tree) {
+    NULL_PTR_GUARD(tree) NULL;
+    return tree->children;
+}
 
-void *Tree_getData(Tree tree) { return tree.data; }
+Tree *Tree_getParent(Tree *tree) {
+    NULL_PTR_GUARD(tree) NULL;
+    return tree->parent;
+}
+
+void *Tree_getData(Tree *tree) {
+    NULL_PTR_GUARD(tree) NULL;
+    return tree->data;
+}
 
 /******************************************************************************/
 
+void Tree_setFreeItemFunc(Tree *tree, void (*func)(void **)) {
+    NULL_PTR_GUARD(tree);
+    NULL_PTR_GUARD(func);
+    tree->freeDataFunc = func;
+}
+
+void Tree_setParent(Tree *tree, Tree *parent) {
+    NULL_PTR_GUARD(tree);
+    tree->parent = parent;
+}
+
 void Tree_addChild(Tree *root, Tree *child) {
+    NULL_PTR_GUARD(root);
+    NULL_PTR_GUARD(child);
     child->parent = root;
-    TreeList_add(&root->children, child);
+    List_add(root->children, child);
 }
 
 void Tree_removeChild(Tree *parent, Tree *child) {
-    if (parent == NULL || child == NULL)
-        return;
-    TreeList_remove(&parent->children, child);
+    NULL_PTR_GUARD(parent);
+    NULL_PTR_GUARD(child);
+    List_rmItem(parent->children, child);
 }
 
 /********************************** PRINTING **********************************/
 
 void Tree_fprint(FILE *stream,
                  void (*valuePrinter)(void *),
-                 Tree tree,
+                 Tree *tree,
                  uint depth) {
+    NULL_PTR_GUARD(tree);
     for (uint i = 0; i < depth; i++)
         fprintf(stream, "  ");
-    valuePrinter(tree.data);
+    if (valuePrinter != NULL)
+        valuePrinter(tree->data);
     fprintf(stream, "Parent: %p\n", Tree_getParent(tree));
-    TreeList_fprint(stream, valuePrinter, tree.children, depth + 1);
+    for (size_t i = 0; i < List_getSize(tree->children); i++) {
+        Tree *child = List_get(tree->children, i);
+        Tree_fprint(stream, valuePrinter, child, depth + 1);
+    }
 }
-void Tree_fprintNode(FILE *stream, void (*valuePrinter)(void *), Tree tree) {
-    valuePrinter(tree.data);
+void Tree_fprintNode(FILE *stream, void (*valuePrinter)(void *), Tree *tree) {
+    NULL_PTR_GUARD(tree);
+    if (valuePrinter != NULL)
+        valuePrinter(tree->data);
     fprintf(stream, "Parent: %p;", Tree_getParent(tree));
     fprintf(stream, "Child count: %d\n", Tree_childCount(tree));
 }
-void Tree_print(Tree tree, void (*valuePrinter)(void *)) {
+void Tree_print(Tree *tree, void (*valuePrinter)(void *)) {
     Tree_fprint(stdout, valuePrinter, tree, 0);
 }
-void Tree_printNode(Tree tree, void (*valuePrinter)(void *)) {
+void Tree_printNode(Tree *tree, void (*valuePrinter)(void *)) {
     Tree_fprintNode(stdout, valuePrinter, tree);
 }
+
+/******************************************************************************/
+
+void Tree_defaultFreeDataFunc(void **data) {
+    NULL_PTR_GUARD(data);
+    NULL_PTR_GUARD(*data);
+    free(*data);
+    *data = NULL;
+}
+
+void Tree_AUX_freeChild(Tree **child) {
+    NULL_PTR_GUARD(child);
+    NULL_PTR_GUARD(*child);
+    (*child)->parent = NULL;
+    Tree_free(child);
+}
+
+#undef NULL_PTR_GUARD
