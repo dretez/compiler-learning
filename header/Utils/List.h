@@ -1,3 +1,6 @@
+#ifndef INCLUDE_UTIL_LIST_H
+#define INCLUDE_UTIL_LIST_H
+
 #include <stddef.h>
 
 #define LIST_FLAGS_IS_SORTED 0x01
@@ -18,7 +21,10 @@ size_t List_getSize(List *list);
 void List_add(List *list, void *item);
 void List_rmItem(List *list, void *item);
 void List_rmIdx(List *list, size_t idx);
+void *List_pop(List *list);
 
 int List_contains(List *list, void *item);
 
 void List_runFunction(List *list, void (*func)(void **));
+
+#endif /* ifndef INCLUDE_UTIL_LIST_H */

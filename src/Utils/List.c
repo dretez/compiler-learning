@@ -10,8 +10,8 @@
 #define LIST_IDX_OVERFLOW_GUARD(list, idx)                                     \
     if (idx > list.count)                                                      \
     return
-#define LIST_CHECK_FLAG(list, flag) list.flags ^ flag
-#define LIST_SET_FLAG(list, flag) list->flags |= flag
+#define LIST_CHECK_FLAG(list, flag) (list.flags ^ flag)
+#define LIST_SET_FLAG(list, flag) (list->flags |= flag)
 
 typedef struct list {
     void **data;
@@ -120,7 +120,6 @@ void List_rmIdx(List *list, size_t idx) {
     NULL_PTR_GUARD(list);
     LIST_IDX_OVERFLOW_GUARD((*list), idx);
 
-    list->freeItemFcn(&(list->data[idx]));
     if (LIST_CHECK_FLAG((*list), LIST_FLAGS_KEEP_SORTED))
         for (size_t i = idx; i < list->count - 1; i++)
             list->data[i] = list->data[i + 1];
@@ -135,6 +134,15 @@ void List_rmIdx(List *list, size_t idx) {
         return;
     }
     list->alloced = list->count;
+}
+
+void *List_pop(List *list) {
+    NULL_PTR_GUARD(list) NULL;
+
+    size_t idx = List_getSize(list) - 1;
+    void *item = List_get(list, idx);
+    List_rmIdx(list, idx);
+    return item;
 }
 
 /*****************************************************************************/
