@@ -46,9 +46,8 @@ void AST_print(AST *tree) {
 
 void AST_fprint(FILE *stream, AST *tree, uint depth) {
     for (uint i = 0; i < depth; i++)
-        fprintf(stream, "  ");
+        fprintf(stream, "|  ");
     Token_fprintln(stream, *AST_data(tree));
-    fprintf(stream, "\n");
 
     for (uint i = 0; i < Tree_childCount(tree); i++) {
         Tree *ctree = Tree_getChild(tree, i);
