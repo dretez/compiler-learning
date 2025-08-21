@@ -41,6 +41,9 @@ Token TokenReader_nextFromFile(int fd);
 
 TokenPrecendence Token_getPrecedence(TokenType);
 
+int Token_isNum(const Token *);
+int Token_isBinOp(const Token *);
+
 /* Visualization */
 
 void Token_print(Token token);

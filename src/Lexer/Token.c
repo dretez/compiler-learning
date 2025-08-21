@@ -96,6 +96,31 @@ TokenPrecendence Token_getPrecedence(TokenType type) {
     }
 }
 
+int Token_isNum(const Token *token) {
+    if (token == NULL)
+        return 0;
+    switch (token->type) {
+    case INTEGER_LITERAL:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+int Token_isBinOp(const Token *token) {
+    if (token == NULL)
+        return 0;
+    switch (token->type) {
+    case OPERATOR_PLUS:
+    case OPERATOR_MINUS:
+    case OPERATOR_TIMES:
+    case OPERATOR_DIVISION:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
 void Token_fprint(FILE *stream, Token token) {
     fprintf(stream, "Type: %d, Precedence: %d, String: \"", token.type,
             token.precedence);
