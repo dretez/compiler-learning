@@ -80,14 +80,14 @@ Token TokenReader_nextFromFile(int fd) {
 
 TokenPrecendence Token_getPrecedence(TokenType type) {
     switch (type) {
-    case PLUS:
-    case MINUS:
+    case OPERATOR_PLUS:
+    case OPERATOR_MINUS:
         return ADD_SUB;
-    case TIMES:
-    case DIVISION:
+    case OPERATOR_TIMES:
+    case OPERATOR_DIVISION:
         return MUL_DIV;
     case INVALID:
-    case DIGIT:
+    case INTEGER_LITERAL:
     case EOF_TOKEN:
     case NULL_TOKEN:
         return NONE;
@@ -118,17 +118,17 @@ void Token_println(Token token) {
 
 TokenType getTokenType(char start) {
     if (isdigit(start)) {
-        return DIGIT;
+        return INTEGER_LITERAL;
     } else if (ispunct(start)) {
         switch (start) {
         case '+':
-            return PLUS;
+            return OPERATOR_PLUS;
         case '-':
-            return MINUS;
+            return OPERATOR_MINUS;
         case '*':
-            return TIMES;
+            return OPERATOR_TIMES;
         case '/':
-            return DIVISION;
+            return OPERATOR_DIVISION;
         default:
             return INVALID;
         }

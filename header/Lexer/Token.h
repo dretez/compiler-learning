@@ -10,11 +10,11 @@ typedef struct _IO_FILE FILE;
 
 typedef enum {
     INVALID,
-    DIGIT,
-    PLUS,
-    MINUS,
-    TIMES,
-    DIVISION,
+    INTEGER_LITERAL,
+    OPERATOR_PLUS,
+    OPERATOR_MINUS,
+    OPERATOR_TIMES,
+    OPERATOR_DIVISION,
     EOF_TOKEN,
     NULL_TOKEN,
 } TokenType;

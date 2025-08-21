@@ -66,10 +66,10 @@ void AST_fprintln(FILE *stream, AST *tree, uint depth) {
 
 uint AST_getMaxChildren(AST *ast) {
     switch (AST_data(ast)->type) {
-    case PLUS:
-    case MINUS:
-    case TIMES:
-    case DIVISION:
+    case OPERATOR_PLUS:
+    case OPERATOR_MINUS:
+    case OPERATOR_TIMES:
+    case OPERATOR_DIVISION:
         return 2;
     default:
         return 0;
