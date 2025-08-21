@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "Lexer/Token.h"
-#include "Parser/AST.h"
 #include "Utils/List.h"
 #include "Utils/Logs.h"
 #include "Utils/String.h"
@@ -12,6 +11,10 @@ typedef struct parser {
     List *tokens;
     size_t index;
 } ParserData;
+
+void AST_fprint(FILE *stream, Tree *tree, uint depth);
+void AST_println(Tree *tree);
+void AST_fprintln(FILE *stream, Tree *tree, uint depth);
 
 Tree *handleNumber(ParserData *parser);
 Tree *handleBinOperator(ParserData *parser, Tree *left);
@@ -82,4 +85,24 @@ Tree *handleBinOperator(ParserData *parser, Tree *left) {
     else
         Tree_addChild(tree, handleNumber(parser));
     return tree;
+}
+
+void AST_fprint(FILE *stream, Tree *tree, uint depth) {
+    for (uint i = 0; i < depth; i++)
+        fprintf(stream, "|  ");
+    Token_fprintln(stream, *(Token *)Tree_getData(tree));
+
+    for (uint i = 0; i < Tree_childCount(tree); i++) {
+        Tree *ctree = Tree_getChild(tree, i);
+        AST_fprint(stream, ctree, depth + 1);
+    }
+}
+
+void AST_println(Tree *tree) {
+    AST_fprintln(stdout, tree, 0);
+}
+
+void AST_fprintln(FILE *stream, Tree *tree, uint depth) {
+    AST_fprint(stream, tree, depth);
+    fprintf(stream, "\n");
 }
