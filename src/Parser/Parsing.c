@@ -8,37 +8,78 @@
 #include "Utils/String.h"
 #include "Utils/Tree.h"
 
-void parse(List *lex) {
-    AST *parse = Tree_new();
-    Token *empty = Token_new();
+typedef struct parser {
+    List *tokens;
+    size_t index;
+} ParserData;
 
-    if (parse == NULL) {
-        return;
-    }
+Tree *handleNumber(ParserData *parser);
+Tree *handleBinOperator(ParserData *parser, Tree *left);
 
-    Tree_setData(parse, List_get(lex, 0));
+void parse(List *tokens) {
+    ParserData data = {
+        .tokens = tokens,
+        .index = 0,
+    };
+    Tree *parse = NULL;
 
-    for (uint i = 1; i < List_getSize(lex); i++) {
-        Token *next;
-        if (i == List_getSize(lex) - 1)
-            next = empty;
-        else
-            next = List_get(lex, i + 1);
-        Token *token = List_get(lex, i);
-
-        // if (token->type == next->type) {
-        if (0) {
-            error("Unexpected tokens found:");
-            printf("\tToken %d: ", i);
-            String_print(token->str);
-            printf("\n\tToken %d: ", i + 1);
-            String_print(next->str);
-            printf("\n");
-            exit(EXIT_FAILURE);
+    while (data.index < List_getSize(tokens)) {
+        Token *token = List_get(tokens, data.index);
+        switch (token->type) {
+        case INTEGER_LITERAL:
+            parse = handleNumber(&data);
+            break;
+        case OPERATOR_PLUS:
+        case OPERATOR_MINUS:
+        case OPERATOR_TIMES:
+        case OPERATOR_DIVISION:
+            parse = handleBinOperator(&data, parse);
+            break;
+        default:
+            exit(1);
         }
-
-        parse = AST_addToken(parse, List_get(lex, i));
     }
-
     AST_println(parse);
+}
+
+Tree *handleNumber(ParserData *parser) {
+    Token *cur = List_get(parser->tokens, parser->index);
+    if (!Token_isNum(cur)) // Unexpected token received
+        exit(1);
+
+    Tree *tree = Tree_new();
+    if (tree == NULL)
+        return NULL;
+    Tree_setData(tree, cur);
+    parser->index++;
+    return tree;
+}
+
+Tree *handleBinOperator(ParserData *parser, Tree *left) {
+    if (left == NULL)
+        exit(1);
+    Token *cur = List_get(parser->tokens, parser->index);
+    Token *prev = List_get(parser->tokens, parser->index - 1);
+    if (!Token_isBinOp(cur) || !Token_isNum(prev)) // Unexpected tokens received
+        exit(1);
+    parser->index++;
+    Token *next = List_get(parser->tokens, parser->index);
+    if (!Token_isNum(next)) // unexpected/missing token type for operand
+        exit(1);
+
+    Tree *tree = Tree_new();
+    Tree_setData(tree, cur);
+    Tree_addChild(tree, left);
+
+    next = List_get(parser->tokens, parser->index + 1);
+    if (Token_isBinOp(next))
+        if (Token_getPrecedence(next->type) < Token_getPrecedence(cur->type))
+            Tree_addChild(tree, handleBinOperator(parser, handleNumber(parser)));
+        else {
+            Tree_addChild(tree, handleNumber(parser));
+            return handleBinOperator(parser, tree);
+        }
+    else
+        Tree_addChild(tree, handleNumber(parser));
+    return tree;
 }

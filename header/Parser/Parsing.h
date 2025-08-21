@@ -1,3 +1,3 @@
 #include "Utils/List.h"
 
-void parse(List *lex);
+void parse(List *tokens);
