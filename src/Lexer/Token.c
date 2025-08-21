@@ -78,14 +78,73 @@ Token TokenReader_nextFromFile(int fd) {
     };
 }
 
-TokenPrecendence Token_getPrecedence(TokenType type) {
+TokenPrecedence Token_getPrecedence(TokenType type) {
     switch (type) {
-    case OPERATOR_PLUS:
-    case OPERATOR_MINUS:
-        return ADD_SUB;
-    case OPERATOR_TIMES:
-    case OPERATOR_DIVISION:
-        return MUL_DIV;
+    case OP_SUFFIX_INC:
+    case OP_SUFFIX_DEC:
+    case OP_FUNC_CALL:
+    case OP_ARRAY_SUBSCRIPTING:
+    case OP_MEMBER_ACCESS:
+    case OP_PTR_MEMBER_ACCESS:
+    case OP_COMPOUND_LITERAL:
+        return ONE;
+    case OP_PREFIX_INC:
+    case OP_PREFIX_DEC:
+    case OP_UNARY_PLUS:
+    case OP_UNARY_MINUS:
+    case OP_LOGICAL_NOT:
+    case OP_BITWISE_MOT:
+    case OP_TYPE_CAST:
+    case OP_DEREFERENCE:
+    case OP_ADDRESS_OF:
+    case OP_SIZEOF:
+    case OP_ALIGNOF:
+        return TWO;
+    case OP_MULTIPLICATION:
+    case OP_DIVISION:
+    case OP_REMAINDER:
+        return THREE;
+    case OP_ADDITION:
+    case OP_SUBTRACTION:
+        return FOUR;
+    case OP_BITWISE_LSHIFT:
+    case OP_BITWISE_RSHIFT:
+        return FIVE;
+    case OP_LOGICAL_LESS:
+    case OP_LOGICAL_LESS_EQUALS:
+    case OP_LOGICAL_GREATER:
+    case OP_LOGICAL_GREATER_EQUALS:
+        return SIX;
+    case OP_LOGICAL_EQUALS:
+    case OP_LOGICAL_NOT_EQUALS:
+        return SEVEN;
+    case OP_BITWISE_AND:
+        return EIGHT;
+    case OP_BITWISE_XOR:
+        return NINE;
+    case OP_BITWISE_OR:
+        return TEN;
+    case OP_LOGICAL_AND:
+        return ELEVEN;
+    case OP_LOGICAL_OR:
+        return TWELVE;
+    case OP_TERNARY_CONDITIONAL:
+        return THIRTEEN;
+    case OP_ASSIGNMENT:
+    case OP_ASSIGNMENT_SUM:
+    case OP_ASSIGNMENT_DIFF:
+    case OP_ASSIGNMENT_PRODUCT:
+    case OP_ASSIGNMENT_QUOTIENT:
+    case OP_ASSIGNMENT_REMAINDER:
+    case OP_ASSIGNMENT_BIT_LS:
+    case OP_ASSIGNMENT_BIT_RS:
+    case OP_ASSIGNMENT_BIT_AND:
+    case OP_ASSIGNMENT_BIT_XOR:
+    case OP_ASSIGNMENT_BIT_OR:
+        return FOURTEEN;
+    /* Precedence 15, left-to-right */
+    case OP_COMMA:
+        return FIFTEEN;
     case INVALID:
     case INTEGER_LITERAL:
     case EOF_TOKEN:
@@ -111,10 +170,55 @@ int Token_isBinOp(const Token *token) {
     if (token == NULL)
         return 0;
     switch (token->type) {
-    case OPERATOR_PLUS:
-    case OPERATOR_MINUS:
-    case OPERATOR_TIMES:
-    case OPERATOR_DIVISION:
+    case OP_SUFFIX_INC:
+    case OP_SUFFIX_DEC:
+    case OP_FUNC_CALL:
+    case OP_ARRAY_SUBSCRIPTING:
+    case OP_MEMBER_ACCESS:
+    case OP_PTR_MEMBER_ACCESS:
+    case OP_COMPOUND_LITERAL:
+    case OP_PREFIX_INC:
+    case OP_PREFIX_DEC:
+    case OP_UNARY_PLUS:
+    case OP_UNARY_MINUS:
+    case OP_LOGICAL_NOT:
+    case OP_BITWISE_MOT:
+    case OP_TYPE_CAST:
+    case OP_DEREFERENCE:
+    case OP_ADDRESS_OF:
+    case OP_SIZEOF:
+    case OP_ALIGNOF:
+    case OP_MULTIPLICATION:
+    case OP_DIVISION:
+    case OP_REMAINDER:
+    case OP_ADDITION:
+    case OP_SUBTRACTION:
+    case OP_BITWISE_LSHIFT:
+    case OP_BITWISE_RSHIFT:
+    case OP_LOGICAL_LESS:
+    case OP_LOGICAL_LESS_EQUALS:
+    case OP_LOGICAL_GREATER:
+    case OP_LOGICAL_GREATER_EQUALS:
+    case OP_LOGICAL_EQUALS:
+    case OP_LOGICAL_NOT_EQUALS:
+    case OP_BITWISE_AND:
+    case OP_BITWISE_XOR:
+    case OP_BITWISE_OR:
+    case OP_LOGICAL_AND:
+    case OP_LOGICAL_OR:
+    case OP_TERNARY_CONDITIONAL:
+    case OP_ASSIGNMENT:
+    case OP_ASSIGNMENT_SUM:
+    case OP_ASSIGNMENT_DIFF:
+    case OP_ASSIGNMENT_PRODUCT:
+    case OP_ASSIGNMENT_QUOTIENT:
+    case OP_ASSIGNMENT_REMAINDER:
+    case OP_ASSIGNMENT_BIT_LS:
+    case OP_ASSIGNMENT_BIT_RS:
+    case OP_ASSIGNMENT_BIT_AND:
+    case OP_ASSIGNMENT_BIT_XOR:
+    case OP_ASSIGNMENT_BIT_OR:
+    case OP_COMMA:
         return 1;
     default:
         return 0;
@@ -147,13 +251,13 @@ TokenType getTokenType(char start) {
     } else if (ispunct(start)) {
         switch (start) {
         case '+':
-            return OPERATOR_PLUS;
+            return OP_ADDITION;
         case '-':
-            return OPERATOR_MINUS;
+            return OP_SUBTRACTION;
         case '*':
-            return OPERATOR_TIMES;
+            return OP_MULTIPLICATION;
         case '/':
-            return OPERATOR_DIVISION;
+            return OP_DIVISION;
         default:
             return INVALID;
         }

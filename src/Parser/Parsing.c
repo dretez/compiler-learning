@@ -32,10 +32,10 @@ void parse(List *tokens) {
         case INTEGER_LITERAL:
             parse = handleNumber(&data);
             break;
-        case OPERATOR_PLUS:
-        case OPERATOR_MINUS:
-        case OPERATOR_TIMES:
-        case OPERATOR_DIVISION:
+        case OP_ADDITION:
+        case OP_SUBTRACTION:
+        case OP_MULTIPLICATION:
+        case OP_DIVISION:
             parse = handleBinOperator(&data, parse);
             break;
         default:
