@@ -4,7 +4,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "Lexer/Token.h"
+#include "Lexer/Lexer.h"
 #include "Parser/Parsing.h"
 #include "Utils/List.h"
 #include "Utils/Logs.h"
@@ -26,19 +26,7 @@ int main(int argc, char *argv[]) {
 
     /**************************** LEXICAL ANALYSIS ****************************/
 
-    List *list = List_new();
-    if (list == NULL) {
-        error("Out of memory exception");
-        exit(EXIT_FAILURE);
-    }
-
-    for (Token read = TokenReader_nextFromFile(f); read.type != EOF_TOKEN;
-         read = TokenReader_nextFromFile(f)) {
-        Token *token = Token_new();
-        *token = read;
-        List_add(list, token);
-    }
-    // TokenList_print(lex);
+    List *list = analyzeFile(f);
 
     /******************************** PARSING ********************************/
 
