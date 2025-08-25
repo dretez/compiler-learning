@@ -8,11 +8,13 @@
  * A String containing a pointer to an array of characters, as well as a size
  * tracker for safer memory handling.
  */
-typedef struct {
+typedef struct string {
     char *str;
     size_t len;
     size_t allocSize;
 } String;
+
+/******************************** CONSTRUCTION ********************************/
 
 /**
  * Provides default values for a String object.
@@ -28,6 +30,8 @@ String *String_new();
  */
 String String_fromCString(char *str, size_t len);
 
+/********************************** CLEAN UP **********************************/
+
 /**
  * Frees an allocated String and sets it to NULL, avoiding dangling pointers.
  */
@@ -38,7 +42,21 @@ void String_free(String **);
 void String_clear(String *);
 
 /**
- * Reallocates a String with the given size. 
+ * TODO:
+ */
+void String_clearUnusedMem(String *str);
+
+/******************************** STRING DATA ********************************/
+
+/**
+ * TODO:
+ */
+String String_getSlice(String *str, size_t start, size_t len);
+
+/***************************** STRING OPERATIONS *****************************/
+
+/**
+ * Reallocates a String with the given size.
  * Useful when the final size is know beforehand, avoiding unnecessary
  * allocations.
  *
@@ -60,6 +78,43 @@ int String_cpy(String *to, String from);
  * <= -1, if the contents of s1 are smaller than the contents of s2;
  */
 int String_cmp(String s1, String s2);
+
+/**
+ * Compares a String object to a string literal.
+ * @warn This function should only be used with string literals. In any other
+ * situation, responsibility falls on the user to ensure the string is null
+ * terminated ('\0').
+ *
+ * @return 0, if both Strings are equal;
+ * >= 1, if the contents of s1 are greater than the contents of s2;
+ * <= -1, if the contents of s1 are smaller than the contents of s2;
+ */
+int String_cmpLiteral(String s1, char *s2);
+
+/**
+ * Cuts a section of a String and returns it as a new String object. If the
+ * creation of the new String object fails, this function has the same behaviour
+ * as String_cutNoPreserve.
+ *
+ * @return A pointer to a String object containing the section cut from the
+ * original String, or NULL, if the creation of the new String object fails.
+ */
+String *String_cut(String *str, size_t start, size_t len);
+
+/**
+ * Cuts a section of a String without preserving the data within that section.
+ */
+void String_cutNoPreserve(String *str, size_t start, size_t len);
+
+/**
+ * TODO:
+ */
+void String_insertChar(String *str, char c, size_t pos);
+
+/**
+ * TODO:
+ */
+void String_insert(String *str, String *data, size_t pos);
 
 /**
  * Prints a String to stdout.
