@@ -46,6 +46,7 @@ void Token_free(Token **token) {
 Token TokenReader_nextFromFile(int fd) {
     char c;
     read(fd, &c, sizeof(char));
+    /* Skip whitespace */
     for (off_t fdEnd = fdGetEnd(fd);
          fdGetCur(fd) < fdEnd && isspace((unsigned char)c);
          read(fd, &c, sizeof(char))) {
@@ -223,6 +224,45 @@ int Token_isBinOp(const Token *token) {
     default:
         return 0;
     }
+}
+
+int Token_isLR(const Token *token) {
+    if (token == NULL)
+        return 0;
+    switch (Token_getPrecedence(token->type)) {
+    case ONE:
+    case THREE:
+    case FOUR:
+    case FIVE:
+    case SIX:
+    case SEVEN:
+    case EIGHT:
+    case NINE:
+    case TEN:
+    case ELEVEN:
+    case TWELVE:
+    case FIFTEEN:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+int Token_isRL(const Token *token) {
+    if (token == NULL)
+        return 0;
+    switch (Token_getPrecedence(token->type)) {
+    case TWO:
+    case THIRTEEN:
+    case FOURTEEN:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+int Token_getAssociativity(const Token *token) {
+    return Token_isLR(token) - Token_isRL(token);
 }
 
 void Token_fprint(FILE *stream, Token token) {

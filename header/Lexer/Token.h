@@ -125,6 +125,9 @@ TokenPrecedence Token_getPrecedence(TokenType);
 
 int Token_isNum(const Token *);
 int Token_isBinOp(const Token *);
+int Token_isLR(const Token *);
+int Token_isRL(const Token *);
+int Token_getAssociativity(const Token *);
 
 /* Visualization */
 

@@ -15,4 +15,6 @@ TokenEndChecker setTokenEndChecker(char start) {
 int digitChecker(unsigned char c) {
     return isspace(c) || isalpha(c) || ispunct(c);
 }
-int operatorChecker(unsigned char c) { return isspace(c) || isalnum(c); }
+int operatorChecker(unsigned char c) {
+    return isspace(c) || isalnum(c);
+}

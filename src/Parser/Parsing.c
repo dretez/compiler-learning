@@ -36,6 +36,7 @@ void parse(List *tokens) {
         case OP_SUBTRACTION:
         case OP_MULTIPLICATION:
         case OP_DIVISION:
+        case OP_REMAINDER:
             parse = handleBinOperator(&data, parse);
             break;
         default:
@@ -77,7 +78,8 @@ Tree *handleBinOperator(ParserData *parser, Tree *left) {
     next = List_get(parser->tokens, parser->index + 1);
     if (Token_isBinOp(next))
         if (Token_getPrecedence(next->type) < Token_getPrecedence(cur->type))
-            Tree_addChild(tree, handleBinOperator(parser, handleNumber(parser)));
+            Tree_addChild(tree,
+                          handleBinOperator(parser, handleNumber(parser)));
         else {
             Tree_addChild(tree, handleNumber(parser));
             return handleBinOperator(parser, tree);
