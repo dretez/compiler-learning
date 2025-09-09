@@ -4,10 +4,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "Lexer/Lexer.h"
 #include "Parser/Parsing.h"
-#include "Utils/List.h"
+#include "Translator/Phase1.h"
+#include "Translator/Phase2.h"
+#include "Translator/Phase3.h"
 #include "Utils/Logs.h"
+#include "Utils/String.h"
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -24,13 +26,8 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    /**************************** LEXICAL ANALYSIS ****************************/
-
-    List *list = analyzeFile(f);
-
-    /******************************** PARSING ********************************/
-
-    parse(list);
+    String *file = phase1(f);
+    String_print(*file);
 
     printf("============================\n");
     info("Press any key to exit");
