@@ -26,10 +26,10 @@ String *String_new() {
 String String_fromCString(char *str, size_t len) {
     String out = String_init();
     String_cpy(&out, (String){
-        .str = str, 
-        .len = len,
-        .allocSize = len,
-    });
+                         .str = str,
+                         .len = len,
+                         .allocSize = len,
+                     });
     return out;
 }
 
@@ -59,6 +59,18 @@ void String_clearUnusedMem(String *str) {
 }
 
 /******************************** STRING DATA ********************************/
+
+size_t String_len(String *str) {
+    return str->len;
+}
+
+size_t String_allocSize(String *str) {
+    return str->allocSize;
+}
+
+char String_getChar(String *str, size_t pos) {
+    return pos >= str->len ? 0 : str->str[pos];
+}
 
 String String_getSlice(String *str, size_t start, size_t len) {
     start = start >= str->len ? str->len - 1 : start;

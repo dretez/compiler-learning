@@ -48,6 +48,18 @@ void String_clearUnusedMem(String *str);
 
 /******************************** STRING DATA ********************************/
 
+size_t String_len(String *str);
+
+size_t String_allocSize(String *str);
+
+/**
+ * Returns a character from a String at the given position.
+ *
+ * @return The char at the requested position, or 0 if the position overflows
+ * the String.
+ */
+char String_getChar(String *str, size_t pos);
+
 /**
  * TODO:
  */
