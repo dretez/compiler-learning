@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
     String *file = phase1(f);
     String_print(*file);
     phase2(file);
+    phase3(file);
+    String_print(*file);
 
     printf("============================\n");
     info("Press any key to exit");
