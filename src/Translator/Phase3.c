@@ -7,6 +7,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+int singleLineCommentStartCheck(String *str, size_t idx) {
+    return !String_cmpLiteral(String_getSlice(str, idx, 2), "//");
+}
+
+int multiLineCommentStartCheck(String *str, size_t idx) {
+    return !String_cmpLiteral(String_getSlice(str, idx, 2), "/*");
+}
+
+int wsStartCheck(String *str, size_t idx) {
+    return isspace(str->str[idx]);
+}
+
 enum ReadState {
     UNKNOWN,
     SINGLE_LINE_COMMENT,
@@ -15,13 +27,17 @@ enum ReadState {
     TOKEN,
 };
 
-enum TokenTypes {
+/**
+ * Preprocessing token type
+ */
+enum PPTokenType {
     HEADER_NAME,
     IDENTIFIER,
     NUMBER,
     CHAR_CONST,
     STRING_LITERAL,
-    OPERATOR,
+    PUNCTUATOR,
+    UNKNOWN_TOKEN,
 };
 
 typedef struct {
@@ -74,15 +90,15 @@ void handleCurReadState(ReaderData *data) {
 }
 
 void setCurReadState(ReaderData *data) {
-    if (!String_cmpLiteral(String_getSlice(data->str, data->idx, 2), "//")) {
+    if (singleLineCommentStartCheck(data->str, data->idx)) {
         data->state = SINGLE_LINE_COMMENT;
         return;
     }
-    if (!String_cmpLiteral(String_getSlice(data->str, data->idx, 2), "/*")) {
+    if (multiLineCommentStartCheck(data->str, data->idx)) {
         data->state = MULTI_LINE_COMMENT;
         return;
     }
-    if (isspace(data->str->str[data->idx])) {
+    if (wsStartCheck(data->str, data->idx)) {
         data->state = WHITESPACE;
         return;
     }
@@ -140,6 +156,15 @@ void readWhiteSpace(ReaderData *data) {
 void readToken(ReaderData *data) {
     String *str = data->str;
     size_t idx = data->idx;
-    data->idx++;
+
+    while (idx < str->len && !singleLineCommentStartCheck(str, idx) &&
+           !multiLineCommentStartCheck(str, idx) && !wsStartCheck(str, idx)) {
+        idx++;
+    }
+
+    String newStr = String_init();
+    newStr.str = &str->str[data->idx];
+    newStr.len = idx - data->idx;
+    data->idx = idx;
     data->prevState = UNKNOWN;
 }
