@@ -61,7 +61,21 @@ size_t String_allocSize(String *str);
 char String_getChar(String *str, size_t pos);
 
 /**
- * TODO:
+ * Returns a slice of a String. The original String is preserved, and any
+ * changes to the returned object's content will affect the original String, and
+ * vice-versa.
+ * In order to safely manipulate the slice from the original String, this
+ * function can be paired up with {@code String_init}/{@code String_new} and
+ * {@code String_cpy}, like so:
+ * {@code
+ *    // Copy slice of str into slice
+ *    String slice = String_init();
+ *    if (String_copy(&slice, str) == -1) {
+ *        // Handle copy failure
+ *    }
+ * @endcode}
+ *
+ * @return A String object containing a section of another String
  */
 String String_getSlice(String *str, size_t start, size_t len);
 
