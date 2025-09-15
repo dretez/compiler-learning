@@ -1,9 +1,11 @@
 #include "Translator/Phase3.h"
 
+#include "Translator/myctype.h"
 #include "Utils/Logs.h"
 #include "Utils/String.h"
 #include <ctype.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -153,18 +155,145 @@ void readWhiteSpace(ReaderData *data) {
     data->prevState = WHITESPACE;
 }
 
-void readToken(ReaderData *data) {
-    String *str = data->str;
-    size_t idx = data->idx;
-
-    while (idx < str->len && !singleLineCommentStartCheck(str, idx) &&
-           !multiLineCommentStartCheck(str, idx) && !wsStartCheck(str, idx)) {
-        idx++;
+int isIdentifierNondigit(String *str, size_t pos) {
+    if (isNondigit(String_getChar(str, pos)))
+        return 1;
+    if (String_getChar(str, pos) == '\\') {
+        switch (String_getChar(str, pos + 1)) {
+        case 'U':
+        case 'u':
+            // TODO: universal-character-name
+        default:
+            break;
+        }
     }
+    return 0;
+}
 
+void readNumber(ReaderData *data) {
+    String *str = data->str;
+    size_t idx;
+    for (idx = data->idx + 1; idx < str->len; idx++) {
+        switch (String_getChar(str, idx)) {
+        case 'e':
+        case 'E':
+        case 'p':
+        case 'P':
+            if (isSign(String_getChar(str, idx + 1))) {
+                idx++;
+            }
+        case '.':
+            continue;
+        default:
+            if (isdigit(String_getChar(str, idx)))
+                continue;
+            if (isNondigit(String_getChar(str, idx)))
+                continue;
+        }
+        break;
+    }
     String newStr = String_init();
     newStr.str = &str->str[data->idx];
     newStr.len = idx - data->idx;
+    printf("Number - ");
+    String_print(newStr);
+    printf("\n");
+    int a\u71bd = 1;
+    a\u71bd = 2;
+
     data->idx = idx;
+}
+
+void readToken(ReaderData *data) {
+    String *str = data->str;
+    size_t idx = data->idx;
+    enum PPTokenType type;
+
+    switch (str->str[idx]) {
+    case '\'':
+        type = CHAR_CONST;
+        break;
+    case '\"':
+        type = STRING_LITERAL;
+        break;
+    case 'L':
+        if (String_getChar(str, idx + 1) == '\'') {
+            type = CHAR_CONST;
+            break;
+        }
+        if (String_getChar(str, idx + 1) == '\"') {
+            type = STRING_LITERAL;
+            break;
+        }
+    case '_':
+        type = IDENTIFIER;
+        break;
+    case '.':
+        if (isdigit(String_getChar(str, idx + 1))) {
+            type = NUMBER;
+            break;
+        }
+    case '[':
+    case ']':
+    case '(':
+    case ')':
+    case '{':
+    case '}':
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+    case '!':
+    case '&':
+    case '|':
+    case '^':
+    case '~':
+    case '%':
+    case '<':
+    case '>':
+    case '=':
+    case '?':
+    case ':':
+    case ';':
+    case ',':
+    case '#':
+        type = PUNCTUATOR;
+        break;
+    default:
+        if (isdigit(str->str[idx])) {
+            type = NUMBER;
+            break;
+        }
+        if (isalpha(str->str[idx])) {
+            type = IDENTIFIER;
+            break;
+        }
+        type = UNKNOWN_TOKEN;
+    }
+
+    switch (type) {
+    case NUMBER:
+        readNumber(data);
+        break;
+    case HEADER_NAME:
+    case IDENTIFIER:
+    case CHAR_CONST:
+    case STRING_LITERAL:
+    case PUNCTUATOR:
+    case UNKNOWN_TOKEN:
+        while (idx < str->len && !singleLineCommentStartCheck(str, idx) &&
+               !multiLineCommentStartCheck(str, idx) &&
+               !wsStartCheck(str, idx)) {
+            idx++;
+        }
+        String newStr = String_init();
+        newStr.str = &str->str[data->idx];
+        newStr.len = idx - data->idx;
+        printf("Token - ");
+        String_print(newStr);
+        printf("\n");
+        data->idx = idx;
+    }
+
     data->prevState = UNKNOWN;
 }
