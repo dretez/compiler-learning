@@ -198,8 +198,6 @@ void readNumber(ReaderData *data) {
     printf("Number - ");
     String_print(newStr);
     printf("\n");
-    int a\u71bd = 1;
-    a\u71bd = 2;
 
     data->idx = idx;
 }
