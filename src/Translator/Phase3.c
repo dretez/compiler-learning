@@ -223,6 +223,7 @@ void readToken(ReaderData *data) {
             type = STRING_LITERAL;
             break;
         }
+        // else fallthrough
     case '_':
         type = IDENTIFIER;
         break;
@@ -231,6 +232,7 @@ void readToken(ReaderData *data) {
             type = NUMBER;
             break;
         }
+        // else fallthrough
     case '[':
     case ']':
     case '(':
