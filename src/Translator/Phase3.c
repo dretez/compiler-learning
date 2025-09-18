@@ -202,36 +202,26 @@ void readNumber(ReaderData *data) {
     data->idx = idx;
 }
 
-void readToken(ReaderData *data) {
+enum PPTokenType getType(ReaderData *data) {
     String *str = data->str;
     size_t idx = data->idx;
-    enum PPTokenType type;
 
     switch (str->str[idx]) {
     case '\'':
-        type = CHAR_CONST;
-        break;
+        return CHAR_CONST;
     case '\"':
-        type = STRING_LITERAL;
-        break;
+        return STRING_LITERAL;
     case 'L':
-        if (String_getChar(str, idx + 1) == '\'') {
-            type = CHAR_CONST;
-            break;
-        }
-        if (String_getChar(str, idx + 1) == '\"') {
-            type = STRING_LITERAL;
-            break;
-        }
+        if (String_getChar(str, idx + 1) == '\'')
+            return CHAR_CONST;
+        if (String_getChar(str, idx + 1) == '\"')
+            return STRING_LITERAL;
         // else fallthrough
     case '_':
-        type = IDENTIFIER;
-        break;
+        return IDENTIFIER;
     case '.':
-        if (isdigit(String_getChar(str, idx + 1))) {
-            type = NUMBER;
-            break;
-        }
+        if (isdigit(String_getChar(str, idx + 1)))
+            return NUMBER;
         // else fallthrough
     case '[':
     case ']':
@@ -257,19 +247,20 @@ void readToken(ReaderData *data) {
     case ';':
     case ',':
     case '#':
-        type = PUNCTUATOR;
-        break;
+        return PUNCTUATOR;
     default:
-        if (isdigit(str->str[idx])) {
-            type = NUMBER;
-            break;
-        }
-        if (isalpha(str->str[idx])) {
-            type = IDENTIFIER;
-            break;
-        }
-        type = UNKNOWN_TOKEN;
+        if (isdigit(str->str[idx]))
+            return NUMBER;
+        if (isalpha(str->str[idx]))
+            return IDENTIFIER;
+        return UNKNOWN_TOKEN;
     }
+}
+
+void readToken(ReaderData *data) {
+    String *str = data->str;
+    size_t idx = data->idx;
+    enum PPTokenType type = getType(data);
 
     switch (type) {
     case NUMBER:
